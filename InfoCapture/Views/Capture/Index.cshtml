@@ -1,0 +1,111 @@
+﻿
+@section body {
+    <div class="container-fluid">
+        <table id="buyingTable"></table>
+    </div>
+    <script>
+        var canExecute = false;
+        var counter = 0;
+        var counterMax = 2;
+        var ordial = 0;
+        var itemCount = 10;//每页中的条目项总数
+        var myInterval;
+        var daysBefore = -1;//抓取目前为止前几天的消息，默认-2天
+
+        $(function () {
+            executeByTime();
+        });
+
+        var executeByTime = function () {
+            myInterval = setInterval(getCapturedInfoOnce, 3000);
+        }
+
+        var getCapturedInfoOnce = function () {
+            if (counter < counterMax) {
+                var pageOrdial = counter * itemCount;
+                getBaiduInfos(pageOrdial, daysBefore);//百度的页是从0开始的
+                counter++;
+
+                pageOrdial = counter;
+                getZhongSouInfos(pageOrdial, daysBefore);//中搜的页是从1开始的
+                getWeiboInfos(pageOrdial, daysBefore);//微博的页是从1开始的
+            }
+            else { //执行超过最高次数，就停止定时执行程序
+                clearInterval(myInterval);
+            }
+            console.log(counter);
+        }
+
+        //从百度中抓取
+        var getBaiduInfos = function (startRec, daysBefore) {
+            $.ajax({
+                type: 'POST',
+                url: "/Capture/GetCapturedBaiduInfos",
+                data: { startRec: startRec, daysBefore: daysBefore },
+                dataType: "JSON",
+                success: function (data) {
+                    if (data.rst.length > 0) {
+                        //alert(data.rst.length);
+                        var table = $('#buyingTable');
+                        for (var i = 0; i < data.rst.length; i++) {
+                            var url = data.rst[i].Url;
+                            var title = data.rst[i].Title;
+                            ordial++;
+                            table.append('<tr><td><span>[' + ordial + ']</span><a href="' + url + '" target="_blank">' + title + '</a></td></tr>');
+                        }
+                    }
+                    $("#h_loading_mask").css("display", "none");//加载成功后关闭加载提示
+                    $("#h_loading").css("display", "none");
+                }
+            });
+        }
+
+        //从中搜中抓取
+        var getZhongSouInfos = function (startRec, daysBefore) {
+            $.ajax({
+                type: 'POST',
+                url: "/Capture/GetCapturedZhongSouInfos",
+                data: { startRec: startRec, daysBefore: daysBefore },
+                dataType: "JSON",
+                success: function (data) {
+                    if (data.rst.length > 0) {
+                        //alert(data.rst.length);
+                        var table = $('#buyingTable');
+                        for (var i = 0; i < data.rst.length; i++) {
+                            var url = data.rst[i].Url;
+                            var title = data.rst[i].Title;
+                            ordial++;
+                            table.append('<tr><td><span>[' + ordial + ']</span><a href="' + url + '" target="_blank">' + title + '</a></td></tr>');
+                        }
+                    }
+                    $("#h_loading_mask").css("display", "none");//加载成功后关闭加载提示
+                    $("#h_loading").css("display", "none");
+                }
+            });
+        }
+
+        //从微博中抓取
+        var getWeiboInfos = function (startRec, daysBefore) {
+            $.ajax({
+                type: 'POST',
+                url: "/Capture/GetCapturedWeiboInfos",
+                data: { startRec: startRec, daysBefore: daysBefore },
+                dataType: "JSON",
+                success: function (data) {
+                    if (data.rst.length > 0) {
+                        //alert(data.rst.length);
+                        var table = $('#buyingTable');
+                        for (var i = 0; i < data.rst.length; i++) {
+                            var url = data.rst[i].Url;
+                            var title = data.rst[i].Title;
+                            ordial++;
+                            table.append('<tr><td><span>[' + ordial + ']</span><a href="' + url + '" target="_blank">' + title + '</a></td></tr>');
+                        }
+                    }
+                    $("#h_loading_mask").css("display", "none");//加载成功后关闭加载提示
+                    $("#h_loading").css("display", "none");
+                }
+            });
+        }
+    </script>
+}
